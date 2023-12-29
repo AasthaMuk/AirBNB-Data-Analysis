@@ -20,7 +20,7 @@ class Extract:
 
     def create_dataframe(self):
         rel_data = []
-        with st.spinner('Connected to Mongo Cluster. Creating Dataframe  .....'):
+        with st.spinner('Please wait, Work in Progress.....'):
             time.sleep(2)
             col = self.connect_to_db()
             for i in col.find():
