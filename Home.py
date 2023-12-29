@@ -8,6 +8,9 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.express as px
+from datetime import datetime
+import folium
+from streamlit_folium import st_folium
 
 
 # Class "App" contains all the utilities
@@ -57,11 +60,21 @@ class App:
             st.markdown('<br>',unsafe_allow_html=True)
             st.markdown("""<p style="color: black; font-size:18px; font-weight:bold">Click on the <span style="color: red; font-size:18px; font-weight:bold">Dropdown Menus</span> option to start exploring.</p>""",unsafe_allow_html=True)
     
+
+    @st.cache_data
+    def read_data(_self,df):
+        location_df=df[['Latitude','Longitude','Street']]
+        column_name_mapping = {'Latitude': 'lat', 'Longitude': 'lon'}
+        # Rename the columns using the rename method
+        location_df = location_df.rename(columns=column_name_mapping)
+        return location_df
+
+
     
     def set_sidebar(self):
         with st.sidebar:
-            selected = option_menu('Choose your Way!!', ['Home Page',"Extract & Preprocess","Vizualize"],
-                    icons=["house",'file-earmark-font','gear'],
+            selected = option_menu('Choose your Way!!', ['Home Page',"Extract & Preprocess","Vizualize","View Map","About"],
+                    icons=["house",'geo-fill','gear','flag','star'],
                     menu_icon= "menu-button-wide",
                     default_index=0,
                     styles={"nav-link": {"font-size": "15px", "text-align": "left", "margin": "-2px", "--hover-color": "#6F36AD"},
@@ -71,18 +84,62 @@ class App:
             self.home_page()
 
         if selected == 'Vizualize':
-            st.title("Tableau Visualization")
-
+            st.title("Live Tableau Visualization")
             # Paste your Tableau embed code here
             components.html("""<html>
             <div class='tableauPlaceholder' id='viz1703758450311' style='position: relative'><noscript><a href='#'><img alt='Dashboard 1 ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Ai&#47;AirBNB_Dashboard_17035959517120&#47;Dashboard1&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='AirBNB_Dashboard_17035959517120&#47;Dashboard1' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Ai&#47;AirBNB_Dashboard_17035959517120&#47;Dashboard1&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /><param name='filter' value='publish=yes' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1703758450311');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='1620px';vizElement.style.minHeight='787px';vizElement.style.maxHeight='1287px';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='1620px';vizElement.style.minHeight='787px';vizElement.style.maxHeight='1287px';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else { vizElement.style.width='100%';vizElement.style.height='1477px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);</script>
             </html>""",height=4000,width=5000)
 
 
+        if selected == 'View Map':
+            st.title("Geo Map using Folium")
+            uploaded_file = st.file_uploader("Upload", type=["csv"])
+            # Check if a file is uploaded
+            if uploaded_file is not None:
+                # Read the CSV file into a DataFrame
+                df = pd.read_csv(uploaded_file)
+                
+                location_df=self.read_data(df)
+                # print(location_df)
+                # st.map(location_df,zoom=1)
+                zoom_value = st.slider('Zoom Level',2,10,step=1)
+                CONNECTICUT_CENTER = (40.75245,-73.98442)
+                map = folium.Map(location=CONNECTICUT_CENTER,zoom_start=zoom_value,no_wrap=True)
+                
+                i=0
+                for index, row in location_df.iterrows():
+                    if i==100:
+                        break
+                    # print(row)
+                    loc=[float(row['lat']),float(row['lon'])]
+                    folium.Marker(loc,tooltip=row['Street']).add_to(map)
+                    i+=1
+
+                st_folium(map,width=1500)
+
+                # AVG AVAILABILITY IN COUNTRIES SCATTERGEO
+                country = st.multiselect('Select a Country',sorted(df.Country.unique()),sorted(df.Country.unique()))
+                room = st.multiselect('Select Room_type',sorted(df.Room_type.unique()),sorted(df.Room_type.unique()))
+                
+    
+                # CONVERTING THE USER INPUT INTO QUERY
+                query = f'Country in {country} & Room_type in {room}'
+                country_df = df.query(query).groupby('Country',as_index=False)['Availability_365'].mean()
+                country_df.Availability_365 = country_df.Availability_365.astype(int)
+                fig = px.scatter_geo(data_frame=country_df,
+                                            locations='Country',
+                                            color= 'Availability_365', 
+                                            hover_data=['Availability_365'],
+                                            locationmode='country names',
+                                            size='Availability_365',
+                                            title= 'Avg Availability in each Country',
+                                            color_continuous_scale='agsunset'
+                                    )
+                st.plotly_chart(fig,use_container_width=True)
+            
         
         if selected == 'Extract & Preprocess':
             csv=""
-
             e = Extract()
             st.markdown(f"""<div style="color: black; font-family: 'Arial', sans-serif; font-size: 35px; font-weight: bold;">Data Extraction and Cleaning</div>""", unsafe_allow_html=True)
             left,centre,right = st.columns((1,2,2))
@@ -108,12 +165,16 @@ class App:
                         mime='text/csv',
                     )   
 
-            st.markdown(f"""<div style="color: black; font-family: 'Arial', sans-serif; font-size: 35px; font-weight: bold;">Exploratory Data Analysis</div><br><br>""", unsafe_allow_html=True)
-            
+            st.markdown(f"""<div style="color: black; font-family: 'Arial', sans-serif; font-size: 35px; font-weight: bold;">Exploratory Data Analysis</div><br><br>""", unsafe_allow_html=True)         
             uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
 
             # Check if a file is uploaded
             if uploaded_file is not None:
+                # Get the current date and time
+                current_datetime = datetime.now()
+                # Get the timestamp (seconds since the epoch)
+                timestamp = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+                st.markdown(f"""<div style="color: black; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;">Uploaded at : {timestamp}</div><br><br>""", unsafe_allow_html=True)
                 # Read the CSV file into a DataFrame
                 df = pd.read_csv(uploaded_file)
                 st.dataframe(df)
