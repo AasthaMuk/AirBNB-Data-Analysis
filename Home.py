@@ -11,7 +11,7 @@ import plotly.express as px
 from datetime import datetime
 import folium
 from streamlit_folium import st_folium
-import os
+
 
 # Class "App" contains all the utilities
 class App:
@@ -26,16 +26,17 @@ class App:
         st.markdown(""" 
             <style>
                     .stApp,[data-testid="stHeader"] {
-                        background: url("https://wallpaper-mania.com/wp-content/uploads/2018/09/High_resolution_wallpaper_background_ID_77700405713.jpg");
+                        background: url("https://wallpaper-mania.com/wp-content/uploads/2018/09/High_resolution_wallpaper_background_ID_77701657103-1200x901.jpg");
                         background-size: cover
                     }
 
+                    
                     .stSpinner,[data-testid="stMarkdownContainer"],.uploadedFile{
                        color:black !important;
                     }
 
                     [data-testid="stSidebar"]{
-                       background: url("https://wallpaper-mania.com/wp-content/uploads/2018/09/High_resolution_wallpaper_background_ID_77700653429.jpg");
+                       background: url("https://wallpaper-mania.com/wp-content/uploads/2018/09/High_resolution_wallpaper_background_ID_77700007553.jpg");
                        background-size: cover
                     }
 
@@ -44,10 +45,13 @@ class App:
                         color: black;
                     }
 
-                    # img{
-                    #    height:400px!important;
-                    #    width:500px!important;
-                    # }
+                    #custom-container {
+                        background-color: #0B030F !important;
+                        border-radius: 10px; /* Rounded corners */
+                        margin: 20px; /* Margin */
+                        padding: 20px;
+                    }
+
             </style>""",unsafe_allow_html=True)
         
 
@@ -69,10 +73,7 @@ class App:
         location_df = location_df.rename(columns=column_name_mapping)
         return location_df
 
-    # Function to display images in a carousel
-    def image_carousel(self,image_files):
-        for image_file in image_files:
-            st.image(image_file, caption=os.path.basename(image_file), use_column_width=True)
+    
     
     def set_sidebar(self):
         with st.sidebar:
@@ -85,6 +86,28 @@ class App:
 
         if selected == 'Home Page':
             self.home_page()
+
+        if selected == "About":
+            col1,col2 = st.columns([3,3],gap="medium")
+            with col1:
+                st.title(" ")
+                st.write(" ")
+                st.markdown(f"""<div style="color: black; font-family: 'Arial', sans-serif; font-size: 40px; font-weight: bold; text-align:left;">About AirBNB:</div>""",unsafe_allow_html=True)
+                st.markdown(f"""<div id="custom-container1"> Airbnb is an online marketplace that connects people who want to rent out their property with people who are looking for accommodations, typically for short stays.</div>""",unsafe_allow_html=True)
+                st.markdown(f"""<div id="custom-container1"> In 2008, Brian Chesky (the current CEO), Nathan Blecharczyk, and Joe Gebbia, established the company now known as Airbnb. The idea blossomed after two of the founders started renting air mattresses in their San Francisco home to conference visitors. Hence, the original name of Airbed & Breakfast.</div>""",unsafe_allow_html=True)
+                st.markdown(f"""<div id="custom-container1"> The idea behind Airbnb is simple: matching local people with a spare room or entire home to rent to others who are visiting the area. Hosts using the platform get to advertise their rentals to millions of people worldwide, with the reassurance that a big company will handle payments and offer other support. And for guests, Airbnb can provide a homey place to stay, perhaps with a kitchen to save on dining out, often at a lower price than hotels charge.</div>""",unsafe_allow_html=True)
+                st.markdown(f"""<div style="color: black; font-family: 'Arial', sans-serif; font-size: 25px; font-weight: bold; text-align:left;">Visit the below website to get more insights ⬇️</div>""",unsafe_allow_html=True)
+                st.write("https://www.airbnb.co.in/")
+                
+            with col2:
+                st.write(" ")
+                st.write(" ")
+                st.write(" ")
+                st.write(" ")
+                image = Image.open("data/icon.webp")
+                new_image = image.resize((300,200))
+                st.image(new_image)
+
 
         if selected == 'Vizualize':
             option = option_menu(None, ['Select Any Option','Tableau', "Power BI"],
@@ -117,20 +140,52 @@ class App:
                 location_df=self.read_data(df)
                 # print(location_df)
                 # st.map(location_df,zoom=1)
-                zoom_value = st.slider('Zoom Level',2,10,step=1)
-                CONNECTICUT_CENTER = (40.75245,-73.98442)
-                map = folium.Map(location=CONNECTICUT_CENTER,zoom_start=zoom_value,no_wrap=True)
+                c1,c2 = st.columns((7,2))
+                with c1:
+                    zoom_value = st.slider('Zoom Level',2,10,step=1)
+                    CONNECTICUT_CENTER = (40.75245,-73.98442)
+                    map = folium.Map(location=CONNECTICUT_CENTER,zoom_start=zoom_value,no_wrap=True)
+                    
+                    i=0
+                    for index, row in location_df.iterrows():
+                        if i==100:
+                            break
+                        # print(row)
+                        loc=[float(row['lat']),float(row['lon'])]
+                        folium.Marker(loc,tooltip=row['Street']).add_to(map)
+                        i+=1
+                    
+                    st_folium(map,width=1500)
                 
-                i=0
-                for index, row in location_df.iterrows():
-                    if i==100:
-                        break
-                    # print(row)
-                    loc=[float(row['lat']),float(row['lon'])]
-                    folium.Marker(loc,tooltip=row['Street']).add_to(map)
-                    i+=1
-
-                st_folium(map,width=1500)
+                with c2:
+                    places_count_df = df.groupby('Country')['Street'].count().reset_index(name='Number_of_Places')
+                    
+                    with st.container():
+                        markdown_string="<div id='custom-container'><p style='color: #04D9F6; font-family: 'Arial', sans-serif; font-size: 35px; font-weight: bold;'>Countrywise Count of AirBNB Facilities</p><div style='background-color: #04D9F6; height: 2px;'></div><br>"
+                       
+                        for index, rows in places_count_df.iterrows():
+                            country=str(rows['Country'])
+                            place_nos=str(rows['Number_of_Places'])
+                            markdown_string+="<p style='color: white; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;'>"+country+"&emsp;<span style='color: #47c3cc;font-size: 15px;'>"+place_nos+"</span></p>"
+                        markdown_string+="</div>"
+                        st.markdown(markdown_string,unsafe_allow_html=True)
+                        # st.markdown(f'''<div style="background-color: #04D9F6; height: 2px;"></div><br>''',unsafe_allow_html=True)
+                        
+                        
+                        # for index, rows in places_count_df.iterrows():
+                        #     st.markdown(f'''<p style="color: black; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;">{rows['Country']}&emsp;<span style="color: #f5425d;font-size: 15px;">{rows['Number_of_Places']}</span></p>''',unsafe_allow_html=True)
+                        
+                    
+                        # st.markdown(f'''<div id="custom-container">
+                        #             <p style="color: #04D9F6; font-family: 'Arial', sans-serif; font-size: 20px; font-weight: bold;">Legend</p>
+                        #             <div style="background-color: #04D9F6; height: 2px;"></div><br>
+                        #             <p style="color: white; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;">No. of Places&emsp;<span style="color: #04D9F6;font-size: 15px;">1</span></p>
+                        #             <p style="color: white; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;">Peer-to-Peer Payments&emsp;&emsp;&emsp;&emsp;<span style="color: #04D9F6;font-size: 15px;">1</span></p>
+                        #             <p style="color: white; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;">Recharge and bill payments&emsp;&emsp;<span style="color: #04D9F6;font-size: 15px;">1</span></p>
+                        #             <p style="color: white; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;">Financial Services&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<span style="color: #04D9F6;font-size: 15px;">3</span></p>
+                        #             <p style="color: white; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;">Others&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<span style="color: #04D9F6;font-size: 15px;">5</span></p>
+                        #             <div style="background-color: #04D9F6; height: 2px;"></div>
+                        #             </div>''', unsafe_allow_html=True)
 
                 # AVG AVAILABILITY IN COUNTRIES SCATTERGEO
                 st.title("Geo Map using ScatterGeo")
