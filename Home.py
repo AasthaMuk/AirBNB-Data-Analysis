@@ -63,7 +63,14 @@ class App:
             st.markdown("""<p style="color: black; font-size:20px; font-weight:bold"> This application is mainly used to get AirBNB Data using MongoDB Atlas and then do data analysis,exploration and vizualization. It utilizes various technologies such as Streamlit, Python, PyMongo, Matplotlib, Seaborn and MongoDB database to achieve this functionality.""",unsafe_allow_html=True)
             st.markdown('<br>',unsafe_allow_html=True)
             st.markdown("""<p style="color: black; font-size:18px; font-weight:bold">Click on the <span style="color: red; font-size:18px; font-weight:bold">Dropdown Menus</span> option to start exploring.</p>""",unsafe_allow_html=True)
-    
+            st.markdown('<p style="color: black; font-size:25px; font-weight:bold">TECHNOLOGIES USED :</p>',unsafe_allow_html=True)
+            st.markdown("""
+                            <p style="color: black; font-size:18px; font-weight:bold">*<span style="color: red; font-size:18px; font-weight:bold"> Python</span> *
+                            <span style="color: red; font-size:18px; font-weight:bold"> Streamlit</span> *
+                            <span style="color: red; font-size:18px; font-weight:bold"> PyMongo</span> *
+                            <span style="color: red; font-size:18px; font-weight:bold"> Folium</span> *
+                            <span style="color: red; font-size:18px; font-weight:bold"> Tableau</span> *
+                            <span style="color: red; font-size:18px; font-weight:bold"> PowerBI</span></p>""",unsafe_allow_html=True)
 
     @st.cache_data
     def read_data(_self,df):
