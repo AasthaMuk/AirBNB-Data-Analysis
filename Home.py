@@ -176,23 +176,7 @@ class App:
                             markdown_string+="<p style='color: white; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;'>"+country+"&emsp;<span style='color: #47c3cc;font-size: 15px;'>"+place_nos+"</span></p>"
                         markdown_string+="</div>"
                         st.markdown(markdown_string,unsafe_allow_html=True)
-                        # st.markdown(f'''<div style="background-color: #04D9F6; height: 2px;"></div><br>''',unsafe_allow_html=True)
                         
-                        
-                        # for index, rows in places_count_df.iterrows():
-                        #     st.markdown(f'''<p style="color: black; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;">{rows['Country']}&emsp;<span style="color: #f5425d;font-size: 15px;">{rows['Number_of_Places']}</span></p>''',unsafe_allow_html=True)
-                        
-                    
-                        # st.markdown(f'''<div id="custom-container">
-                        #             <p style="color: #04D9F6; font-family: 'Arial', sans-serif; font-size: 20px; font-weight: bold;">Legend</p>
-                        #             <div style="background-color: #04D9F6; height: 2px;"></div><br>
-                        #             <p style="color: white; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;">No. of Places&emsp;<span style="color: #04D9F6;font-size: 15px;">1</span></p>
-                        #             <p style="color: white; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;">Peer-to-Peer Payments&emsp;&emsp;&emsp;&emsp;<span style="color: #04D9F6;font-size: 15px;">1</span></p>
-                        #             <p style="color: white; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;">Recharge and bill payments&emsp;&emsp;<span style="color: #04D9F6;font-size: 15px;">1</span></p>
-                        #             <p style="color: white; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;">Financial Services&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<span style="color: #04D9F6;font-size: 15px;">3</span></p>
-                        #             <p style="color: white; font-family: 'Arial', sans-serif; font-size: 15px; font-weight: bold;">Others&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<span style="color: #04D9F6;font-size: 15px;">5</span></p>
-                        #             <div style="background-color: #04D9F6; height: 2px;"></div>
-                        #             </div>''', unsafe_allow_html=True)
 
                 # AVG AVAILABILITY IN COUNTRIES SCATTERGEO
                 st.title("Geo Map using ScatterGeo")
@@ -227,7 +211,7 @@ class App:
                     csv = e.convert_df(df)
             with right:
                 if csv =="":
-                    st.write("Please click on Connect to Mongo button, then only, go for Downloading ⚠️")
+                    st.write("Please click on 'Get Data' button, then only, go for Downloading ⚠️")
                     st.download_button(
                         label="Download data as CSV",
                         data=csv,
