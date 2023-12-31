@@ -1,8 +1,6 @@
 # AirBNB-Data-Analysis
 
-### Video Link : 
-
-### Problem Statement :
+### Video Link : Problem Statement :
 
 This project aims to analyze Airbnb data using MongoDB Atlas, perform data cleaning
 and preparation, develop interactive geospatial visualizations, and create dynamic
@@ -63,7 +61,8 @@ analyzing and visualizing spatial patterns.
 ### My Dashboards :
 
 1. Using Tableau
-   ![1704008753216](image/README/1704008753216.png)  
+
+   ![1704010105752](image/README/1704010105752.png)
 2. Using PowerBI
 
 ![1704008629138](image/README/1704008629138.png)
